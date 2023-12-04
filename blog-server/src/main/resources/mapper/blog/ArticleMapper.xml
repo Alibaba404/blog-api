@@ -82,10 +82,9 @@
     </delete>
 
     <select id="findOne" resultType="cn.aikuiba.blog.entity.Article">
-        SELECT ta.*, tat.type_name articleTypeName, ia.id ipid, ia.address
+        SELECT ta.*, tat.type_name articleTypeName
         FROM tb_article ta
                  LEFT JOIN tb_article_type tat ON ta.article_type = tat.id
-                 LEFT JOIN ip_address ia ON ta.id = ia.article_id
         WHERE ta.id = #{id}
     </select>
     <select id="findAll" resultType="cn.aikuiba.blog.entity.Article">
