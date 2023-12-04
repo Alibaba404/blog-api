@@ -55,6 +55,7 @@
         UPDATE tb_article
         SET article_comment_num =article_comment_num - 1
         WHERE id = #{articleId}
+          AND article_comment_num <![CDATA[>=]]> 1
     </update>
     <!--增加阅读数-->
     <update id="increaseArticleReadCount">
@@ -72,6 +73,7 @@
         UPDATE tb_article
         SET article_star_num = article_star_num - 1
         WHERE id = #{articleId}
+          AND article_star_num <![CDATA[>=]]> 1
     </update>
 
     <delete id="delete">
