@@ -222,4 +222,15 @@ public class ArticleServiceImpl implements IArticleService {
         return null != articleMapper.findIpAddressByArticleAndIp(articleId, ip);
     }
 
+    @Override
+    public Integer subArticleStarNum(Long articleId, HttpServletRequest request) {
+        // 查询是否点过赞
+        String ip = IPUtil.getClientIPAddress(request);
+        // 删除点赞记录信息
+        articleMapper.deleteIPAddressByArticleIdAndIp(articleId, ip);
+        // 文章点赞数-1
+        articleMapper.decreaseArticleStarNum(articleId);
+        return 0;
+    }
+
 }

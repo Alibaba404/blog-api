@@ -68,6 +68,11 @@
         SET article_star_num = article_star_num + 1
         WHERE id = #{articleId}
     </update>
+    <update id="decreaseArticleStarNum">
+        UPDATE tb_article
+        SET article_star_num = article_star_num - 1
+        WHERE id = #{articleId}
+    </update>
 
     <delete id="delete">
         DELETE
@@ -79,6 +84,9 @@
         <foreach collection="array" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
+    </delete>
+    <delete id="deleteIPAddressByArticleIdAndIp">
+        DELETE FROM ip_address WHERE article_id =#{articleId} AND address =#{ip}
     </delete>
 
     <select id="findOne" resultType="cn.aikuiba.blog.entity.Article">

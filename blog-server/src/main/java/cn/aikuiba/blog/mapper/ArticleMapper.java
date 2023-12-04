@@ -55,4 +55,8 @@ public interface ArticleMapper {
     void increaseArticleStarNum(Long articleId);
 
     void insertIpAddress(IPAddress ipAddress);
+
+    void deleteIPAddressByArticleIdAndIp(@Param("articleId") Long articleId, @Param("ip") String ip);
+
+    void decreaseArticleStarNum(Long articleId);
 }

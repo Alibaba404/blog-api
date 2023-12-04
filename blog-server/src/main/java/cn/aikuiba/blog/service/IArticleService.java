@@ -54,4 +54,6 @@ public interface IArticleService {
     Integer addArticleStarNum(Long articleId, HttpServletRequest request);
 
     Boolean getIsStarClick(Long articleId, HttpServletRequest request);
+
+    Integer subArticleStarNum(Long articleId, HttpServletRequest request);
 }

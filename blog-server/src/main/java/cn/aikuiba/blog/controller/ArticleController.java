@@ -241,6 +241,10 @@ public class ArticleController {
     public R<Integer> addArticleStarNum(@PathVariable("articleId") Long articleId, HttpServletRequest request) {
         return R.success(articleService.addArticleStarNum(articleId, request));
     }
+    @PostMapping("/subArticleStarNum/{articleId}")
+    public R<Integer> subArticleStarNum(@PathVariable("articleId") Long articleId, HttpServletRequest request) {
+        return R.success(articleService.subArticleStarNum(articleId, request));
+    }
 
     /**
      * 当前用户是否已点赞
