@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.aikuiba.system.mapper.EmployeeMapper">
+    <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        INSERT INTO tb_employee(username, phone, email, salt, password, age, state, logininfo_id)
+        VALUES (#{username},
+                #{phone},
+                #{email},
+                #{salt},
+                #{password},
+                #{age},
+                #{state},
+                #{logininfoId})
+    </insert>
+    <update id="update">
+        UPDATE tb_employee
+        <set>
+            username =#{username},
+            phone =#{phone},
+            email =#{email},
+            age =#{age},
+            state =#{state},
+            logininfo_id =#{logininfoId}
+        </set>
+        WHERE id =#{id}
+    </update>
+    <update id="updatePasswordByLogininfo">
+        UPDATE tb_employee
+        SET password =#{newpass}
+        WHERE logininfo_id = #{logininfoId}
+          AND password = #{original}
+    </update>
+    <delete id="delete">
+        DELETE
+        FROM tb_employee te
+        WHERE te.id = #{uid}
+    </delete>
+    <delete id="deleteBatch">
+        DELETE FROM tb_employee te WHERE te.id IN
+        <foreach collection="array" open="(" close=")" separator="," item="e">
+            #{e.id}
+        </foreach>
+    </delete>
+    <!--清空之间表关系-->
+    <delete id="deleteEmployeeRoleByEmployeeId">
+        DELETE
+        FROM tb_employee_role
+        WHERE employee_id = #{employeeId}
+    </delete>
+
+    <select id="findAll" resultType="cn.aikuiba.system.entity.Employee">
+        SELECT *
+        FROM tb_employee te
+    </select>
+
+    <select id="findOne" resultType="cn.aikuiba.system.entity.Employee">
+        SELECT *
+        FROM tb_employee te
+        WHERE te.id = #{uid}
+    </select>
+
+
+    <select id="findEmployeeByUsername" resultType="cn.aikuiba.system.entity.Employee">
+        SELECT *
+        FROM tb_employee te
+        WHERE te.username = #{username}
+    </select>
+
+    <resultMap id="pageResultMap" type="cn.aikuiba.system.entity.Employee">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="phone" property="phone"/>
+        <result column="email" property="email"/>
+        <result column="age" property="age"/>
+        <result column="state" property="state"/>
+        <result column="logininfo_id" property="logininfoId"/>
+        <collection property="roles" ofType="cn.aikuiba.system.entity.Role">
+            <id column="roleId" property="id"/>
+            <result column="roleName" property="name"/>
+        </collection>
+    </resultMap>
+    <select id="page" resultType="cn.aikuiba.system.entity.Employee">
+        SELECT te.* FROM tb_employee te
+        <where>
+            <if test="keywords !=null and !''.equals(keywords.trim())">
+                AND te.username LIKE CONCAT('%',#{keywords},'%')
+            </if>
+        </where>
+    </select>
+    <select id="findRolesByEmployeeId" resultType="cn.aikuiba.system.entity.Role">
+        SELECT tr.*
+        FROM tb_employee_role ter
+                 JOIN tb_role tr ON ter.role_id = tr.id
+        WHERE ter.employee_id = #{employeeId}
+    </select>
+</mapper>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.aikuiba.blog.mapper.ArticleMapper">
+    <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        INSERT INTO tb_article(article_pic, article_name, article_tag, article_type, article_state, top_state, publish_id, create_time, update_time, article_read_count, article_star_num, article_comment_num,
+                               article_remark, article_content)
+        VALUES (#{articlePic},
+                #{articleName},
+                #{articleTag},
+                #{articleType},
+                #{articleState},
+                #{topState},
+                #{publishId},
+                #{createTime},
+                #{updateTime},
+                #{articleReadCount},
+                #{articleStarNum},
+                #{articleCommentNum},
+                #{articleRemark},
+                #{articleContent})
+    </insert>
+    <!--保存点赞信息-->
+    <insert id="insertIpAddress" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        INSERT INTO ip_address(article_id, address, create_time)
+        VALUES (#{articleId}, #{address}, #{createTime})
+    </insert>
+    <update id="update">
+        UPDATE tb_article
+        SET article_pic=#{articlePic},
+            article_name=#{articleName},
+            article_tag=#{articleTag},
+            article_type=#{articleType},
+            article_state=#{articleState},
+            top_state=#{topState},
+            publish_id=#{publishId},
+            create_time=#{createTime},
+            update_time=#{updateTime},
+            article_read_count=#{articleReadCount},
+            article_star_num=#{articleStarNum},
+            article_comment_num=#{articleCommentNum},
+            article_remark=#{articleRemark},
+            article_content=#{articleContent}
+        WHERE id = #{id}
+    </update>
+    <!--增加评论数-->
+    <update id="increaseCommentCount">
+        UPDATE tb_article
+        SET article_comment_num =article_comment_num + 1
+        WHERE id = #{articleId}
+    </update>
+    <!--减少评论数-->
+    <update id="decreaseCommentCount">
+        UPDATE tb_article
+        SET article_comment_num =article_comment_num - 1
+        WHERE id = #{articleId}
+    </update>
+    <!--增加阅读数-->
+    <update id="increaseArticleReadCount">
+        UPDATE tb_article
+        SET article_read_count =article_read_count + 1
+        WHERE id = #{articleId}
+    </update>
+    <!--增加点赞数-->
+    <update id="increaseArticleStarNum">
+        UPDATE tb_article
+        SET article_star_num = article_star_num + 1
+        WHERE id = #{articleId}
+    </update>
+
+    <delete id="delete">
+        DELETE
+        FROM tb_article
+        WHERE id = #{id}
+    </delete>
+    <delete id="deleteBatch">
+        DELETE FROM tb_article WHERE id IN
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="findOne" resultType="cn.aikuiba.blog.entity.Article">
+        SELECT ta.*, tat.type_name articleTypeName, ia.id ipid, ia.address
+        FROM tb_article ta
+                 LEFT JOIN tb_article_type tat ON ta.article_type = tat.id
+                 LEFT JOIN ip_address ia ON ta.id = ia.article_id
+        WHERE ta.id = #{id}
+    </select>
+    <select id="findAll" resultType="cn.aikuiba.blog.entity.Article">
+        SELECT *
+        FROM tb_article
+    </select>
+
+
+    <select id="page" resultType="cn.aikuiba.blog.entity.Article">
+        SELECT ta.*,te.username publishUserName,tat.type_name articleTypeName FROM tb_article ta
+        LEFT JOIN tb_employee te ON ta.publish_id = te.id
+        LEFT JOIN tb_article_type tat ON ta.article_type = tat.id
+        <where>
+            <if test="keywords !=null and keywords !=''">
+                AND ta.article_name LIKE CONCAT('%',#{keywords},'%')
+            </if>
+            <if test="articleState !=null">
+                AND ta.article_state =#{articleState}
+            </if>
+        </where>
+    </select>
+    <select id="countArticleType" resultType="cn.aikuiba.blog.dto.ArticleDto">
+        SELECT ta.article_type articleTypeId, tat.type_name articleTypeName, COUNT(ta.article_type) articleTypeCount
+        FROM tb_article ta
+                 JOIN tb_article_type tat ON ta.article_type = tat.id
+        WHERE ta.article_state = 1
+        GROUP BY ta.article_type
+    </select>
+    <select id="countArticle" resultType="cn.aikuiba.blog.dto.ArticleDto">
+        SELECT DATE_FORMAT(create_time, '%Y年%m月') time, COUNT(id) articleCount
+        FROM tb_article
+        WHERE article_state = 1
+        GROUP BY time
+        ORDER BY time
+    </select>
+    <select id="getRelatedArticles" resultType="cn.aikuiba.blog.entity.Article">
+        SELECT ta.id, ta.article_name
+        FROM tb_article ta
+        WHERE ta.article_state = 1
+          AND ta.article_tag = (SELECT article_tag
+                                FROM tb_article taa
+                                WHERE taa.id = #{articleId})
+          AND ta.id != #{articleId}
+    </select>
+
+    <select id="getArticleByArticleType" resultType="cn.aikuiba.blog.entity.Article">
+        SELECT *
+        FROM tb_article
+        WHERE article_state = 1
+          AND article_type = #{articleTypeId}
+    </select>
+    <select id="getArticleArchivist" resultType="cn.aikuiba.blog.entity.Article">
+        SELECT id, article_name, YEAR(create_time) 'year', MONTH(create_time) 'month', DAY(create_time) 'day', DATE_FORMAT(create_time, '%Y年%m月') time
+        FROM tb_article
+        <where>
+            AND article_state = 1
+            <if test="time !=null and !''.equals(time.trim())">
+                AND DATE_FORMAT(create_time, '%Y年%m月') =#{time}
+            </if>
+        </where>
+        ORDER BY year DESC, month DESC, day DESC
+    </select>
+    <select id="getTopCountArticleType" resultType="cn.aikuiba.blog.dto.ArticleDto">
+        SELECT COUNT(ta.id) articleCount, tat.type_name articleTypeName
+        FROM tb_article ta
+                 JOIN tb_article_type tat ON ta.article_type = tat.id
+        GROUP BY ta.article_type
+        ORDER BY articleCount DESC
+        LIMIT #{topCount}
+    </select>
+    <select id="findIpAddressByArticleAndIp" resultType="cn.aikuiba.system.entity.IPAddress">
+        SELECT *
+        FROM ip_address
+        WHERE article_id = #{articleId}
+          AND address = #{ip}
+    </select>
+</mapper>

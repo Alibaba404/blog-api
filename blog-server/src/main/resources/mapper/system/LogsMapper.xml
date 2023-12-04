@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.aikuiba.system.mapper.LogsMapper">
+    <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        INSERT INTO tb_logs(user_id, user_name, create_time, class_name, method_name, method_params, return_value, cost_time, ip)
+        VALUES (#{userId},
+                #{userName},
+                #{createTime},
+                #{className},
+                #{methodName},
+                #{methodParams},
+                #{returnValue},
+                #{costTime},
+                #{ip})
+    </insert>
+    <update id="update">
+        UPDATE tb_logs
+        <set>
+            user_id=#{userId},
+            user_name=#{userName},
+            create_time=#{createTime},
+            class_name=#{className},
+            method_name=#{methodName},
+            method_params=#{methodParams},
+            return_value=#{returnValue},
+            cost_time=#{costTime},
+            ip=#{ip}
+        </set>
+        WHERE id =#{id}
+    </update>
+    <delete id="delete">
+        DELETE
+        FROM tb_logs tl
+        WHERE tl.id = #{id}
+    </delete>
+    <delete id="deleteBatch">
+        DELETE FROM tb_logs tl WHERE tl.id IN
+        <foreach collection="array" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>w
+    </delete>
+
+    <select id="findAll" resultType="cn.aikuiba.system.entity.Logs">
+        SELECT *
+        FROM tb_logs tl
+    </select>
+
+    <select id="findOne" resultType="cn.aikuiba.system.entity.Logs">
+        SELECT *
+        FROM tb_logs tl
+        WHERE tl.id = #{id}
+    </select>
+
+    <select id="page" resultType="cn.aikuiba.system.entity.Logs">
+        SELECT *
+        FROM tb_logs tl
+        <where>
+            <if test="keywords !=null and !''.equals(keywords.trim())">
+                AND tl.user_name LIKE CONCAT('%',#{keywords},'%')
+            </if>
+        </where>
+    </select>
+
+</mapper>

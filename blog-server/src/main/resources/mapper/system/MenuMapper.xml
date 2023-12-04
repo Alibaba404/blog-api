@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.aikuiba.system.mapper.MenuMapper">
+    <insert id="insert">
+        INSERT INTO tb_menu(name, component, url, icon, `index`, parent_id)
+        VALUES (#{name},
+                #{component},
+                #{url},
+                #{icon},
+                #{index},
+                #{parentId})
+    </insert>
+    <update id="update">
+        UPDATE tb_menu
+        <set>
+            name =#{name},
+            component =#{component},
+            url =#{url},
+            icon =#{icon},
+            `index` =#{index},
+            parent_id =#{parentId},
+        </set>
+        WHERE id =#{id}
+    </update>
+    <delete id="delete">
+        DELETE
+        FROM tb_menu tm
+        WHERE tm.id = #{id}
+    </delete>
+    <delete id="deleteBatch">
+        DELETE FROM tb_menu tm WHERE tm.id IN
+        <foreach collection="array" open="(" close=")" separator="," item="e">
+            #{e.id}
+        </foreach>w
+    </delete>
+
+    <select id="findAll" resultType="cn.aikuiba.system.entity.Menu">
+        SELECT *
+        FROM tb_menu tm
+    </select>
+
+    <select id="findOne" resultType="cn.aikuiba.system.entity.Menu">
+        SELECT *
+        FROM tb_menu tm
+        WHERE tm.id = #{id}
+    </select>
+
+
+    <select id="page" resultType="cn.aikuiba.system.entity.Menu">
+        SELECT tm.*,tmp.name parentName FROM tb_menu tm
+        LEFT JOIN tb_menu tmp ON tm.parent_id = tmp.id
+        <where>
+            <if test="keywords !=null and !''.equals(keywords.trim())">
+                AND tm.name LIKE CONCAT('%',#{keywords},'%')
+            </if>
+        </where>
+    </select>
+    <select id="findParentByMenuId" resultType="java.lang.Long">
+        SELECT parent_id
+        FROM tb_menu
+        WHERE id = #{menuId}
+    </select>
+
+</mapper>

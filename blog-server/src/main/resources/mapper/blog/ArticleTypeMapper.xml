@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.aikuiba.blog.mapper.ArticleTypeMapper">
+    <insert id="insert">
+        INSERT INTO tb_article_type(type_name, status, create_time, update_time, parent_id)
+        VALUES (#{typeName},
+                #{status},
+                #{createTime},
+                #{updateTime},
+                #{parentId})
+    </insert>
+    <update id="update">
+        UPDATE tb_article_type
+        SET type_name=#{typeName},
+            status =#{status},
+            create_time=#{createTime},
+            update_time=#{updateTime},
+            parent_id=#{parentId}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE
+        FROM tb_article_type
+        WHERE id = #{id}
+    </delete>
+    <delete id="deleteBatch">
+        DELETE FROM tb_article_type WHERE id IN (
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        )
+    </delete>
+
+
+    <select id="findOne" resultType="cn.aikuiba.blog.entity.ArticleType">
+        SELECT *
+        FROM tb_article_type
+        WHERE id = #{id}
+    </select>
+    <select id="findAll" resultType="cn.aikuiba.blog.entity.ArticleType">
+        SELECT *
+        FROM tb_article_type
+    </select>
+
+
+    <select id="page" resultType="cn.aikuiba.blog.entity.ArticleType">
+        SELECT tat.*,tatp.type_name parentName
+        From tb_article_type tat
+        LEFT JOIN tb_article_type tatp ON tat.parent_id = tatp.id
+        <where>
+            <if test="keywords !=null and keywords !=''">
+                AND tat.type_name LIKE CONCAT('%',#{keywords},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="findOneByArticleTypeName" resultType="cn.aikuiba.blog.entity.ArticleType">
+        SELECT *
+        FROM tb_article_type
+        WHERE type_name = #{articleTypeName}
+    </select>
+
+</mapper>

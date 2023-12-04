@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.aikuiba.system.mapper.LogininfoMapper">
+    <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        INSERT INTO tb_logininfo(username, phone, email, salt, password, type, disable, avatar_url)
+        VALUES (#{username},
+                #{phone},
+                #{email},
+                #{salt},
+                #{password},
+                #{type},
+                #{disable}, #{avatarUrl})
+    </insert>
+    <update id="update">
+        UPDATE tb_logininfo
+        <set>
+            username=#{username},
+            phone=#{phone},
+            email=#{email},
+            salt=#{salt},
+            password=#{password},
+            type=#{type},
+            disable=#{disable},
+            avatar_url=#{avatarUrl}
+        </set>
+        WHERE id =#{id}
+    </update>
+    <update id="updatePassword">
+        UPDATE tb_logininfo
+        SET password =#{newpass}
+        WHERE id = #{id}
+          AND password = #{original}
+    </update>
+    <delete id="delete">
+        DELETE
+        FROM tb_logininfo tl
+        WHERE tl.id = #{id}
+    </delete>
+    <delete id="deleteBatch">
+        DELETE FROM tb_logininfo tl WHERE tl.id IN
+        <foreach collection="array" open="(" close=")" separator="," item="e">
+            #{e.id}
+        </foreach>w
+    </delete>
+    <delete id="deleteByEmployeeId">
+        DELETE
+        FROM tb_logininfo tl
+        WHERE id = (SELECT logininfo_id
+                    FROM tb_employee te
+                    WHERE te.id = #{employeeId})
+    </delete>
+    <delete id="deleteByUserId">
+        DELETE
+        FROM tb_logininfo tl
+        WHERE id = (SELECT logininfo_id
+                    FROM tb_user tu
+                    WHERE tu.id = #{userId})
+    </delete>
+
+    <select id="findAll" resultType="cn.aikuiba.system.entity.Logininfo">
+        SELECT *
+        FROM tb_logininfo tl
+    </select>
+
+    <select id="findOne" resultType="cn.aikuiba.system.entity.Logininfo">
+        SELECT *
+        FROM tb_logininfo tl
+        WHERE tl.id = #{id}
+    </select>
+
+
+    <select id="page" resultType="cn.aikuiba.system.entity.Logininfo">
+        SELECT tl.* FROM tb_logininfo tl
+        <where>
+            <if test="keywords !=null and !''.equals(keywords.trim())">
+                AND tl.username LIKE CONCAT('%',#{keywords},'%')
+            </if>
+        </where>
+    </select>
+    <select id="findByUsername" resultType="cn.aikuiba.system.entity.Logininfo">
+        SELECT *
+        FROM tb_logininfo
+        WHERE type = #{type}
+          AND (
+                    username = #{account}
+                OR email = #{account}
+                OR phone = #{account}
+            )
+    </select>
+    <select id="findPermissionByLogininfoId" resultType="java.lang.String">
+        SELECT tp.sn
+        FROM tb_employee te
+                 JOIN tb_employee_role ter ON te.id = ter.employee_id
+                 JOIN tb_role_permission trp ON ter.role_id = trp.role_id
+                 JOIN tb_permission tp on trp.permission_id = tp.id
+        WHERE te.logininfo_id = #{logininfoId}
+    </select>
+    <select id="findMenuByLogininfoId" resultType="cn.aikuiba.system.entity.Menu">
+        SELECT DISTINCT tm.*
+        FROM tb_employee te
+                 JOIN tb_employee_role ter on te.id = ter.employee_id
+                 JOIN tb_role_menu trm on ter.role_id = trm.role_id
+                 JOIN tb_menu tm on trm.menu_id = tm.id
+        WHERE te.logininfo_id = #{logininfoId}
+    </select>
+
+</mapper>

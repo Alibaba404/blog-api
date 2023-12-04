@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.aikuiba.user.mapper.UserMapper">
+    <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        INSERT INTO tb_user(user_name, real_name, phone, email, salt, password, avatar, remark, logininfo_id)
+        VALUES (#{userName},
+                #{realName},
+                #{phone},
+                #{email},
+                #{salt},
+                #{password},
+                #{avatar},
+                #{remark},
+                #{logininfoId})
+    </insert>
+    <update id="update">
+        UPDATE tb_user
+        <set>
+            <if test="userName !=null and !''.equals(userName.trim())">user_name=#{userName},</if>
+            <if test="realName !=null and !''.equals(realName.trim()">real_name=#{realName},</if>
+            <if test="phone !=null and !''.equals(phone.trim()">phone=#{phone},</if>
+            <if test="email !=null and !''.equals(email.trim()">email=#{email},</if>
+            <if test="salt !=null and !''.equals(salt.trim()">salt=#{salt},</if>
+            <if test="password !=null and !''.equals(password.trim()">password=#{password},</if>
+            <if test="avatar !=null and !''.equals(avatar.trim()">avatar=#{avatar},</if>
+            <if test="remark !=null and !''.equals(remark.trim()">remark=#{remark},</if>
+            <if test="logininfoId !=null">logininfo_id=#{logininfoId}</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    <delete id="delete">
+        DELETE
+        FROM tb_user
+        WHERE id = #{uid}
+    </delete>
+    <delete id="deleteBatch">
+        DELETE FROM tb_user WHERE id IN
+        <foreach collection="array" item="uid" separator="," open="(" close=")">
+            #{uid}
+        </foreach>
+    </delete>
+
+    <select id="findAll" resultType="cn.aikuiba.user.entity.User">
+        SELECT *
+        FROM tb_user
+    </select>
+    <select id="findOne" resultType="cn.aikuiba.user.entity.User">
+        SELECT *
+        FROM tb_user
+        WHERE id = #{uid}
+    </select>
+
+    <select id="page" resultType="cn.aikuiba.user.entity.User">
+        SELECT * FROM tb_user
+        <where>
+            <if test="keywords !=null and keywords !=''">
+                AND user_name LIKE CONCAT('%',#{keywords},'%')
+                OR real_name LIKE CONCAT('%',#{keywords},'%')
+                OR remark LIKE CONCAT('%',#{keywords},'%')
+            </if>
+        </where>
+    </select>
+    <select id="findOneByUserName" resultType="cn.aikuiba.user.entity.User">
+        SELECT *
+        FROM tb_user
+        WHERE user_name = #{userName}
+    </select>
+</mapper>

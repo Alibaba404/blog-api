@@ -1,0 +1,64 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://root:123456@127.0.0.1:27017/blog?authSource=admin&authMechanism=SCRAM-SHA-1
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    password: 123456
+    jedis:
+      pool:
+        max-wait: 2000ms
+        min-idle: 2
+        max-idle: 8
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource     # 连接池指定
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql:///blog?serverTimezone=Asia/Shanghai&useSSL=false&characterEncoding=utf-8
+    username: root
+    password: 123456
+    druid: #企业开发中可能会用到的配置
+      initial-size: 5 # 初始化时建立物理连接的个数
+      min-idle: 5 # 最小连接池连接数量，最小空闲数量
+      max-active: 20 # 最大连接池连接数量，最大活跃连接数
+      max-wait: 60000 # 配置获取连接等待超时的时间
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      validationQuery: SELECT 1
+      testWhileIdle: true
+      testOnBorrow: true
+      testOnReturn: false
+      poolPreparedStatements: true
+      maxPoolPreparedStatementPerConnectionSize: 20
+      filters: stat,wall
+      connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      stat-view-servlet: # 德鲁伊连接池，内置提供一个web版的性能监控配置
+        allow: 0.0.0.0 # 允许哪些IP访问druid监控界面,多个IP以逗号分隔
+        login-username: admin # 设置登录帐号
+        login-password: 123456 # 设置登录密码
+        reset-enable: false # 是否允许重置数据
+        # url-pattern: /database/* # 默认访问根路径是：/druid/；也可以自定义设置
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
+# mybatis配置
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true #开启驼峰字段转换，自动映射时将有下划线的字段的数据映射给驼峰字段
+  type-aliases-package: cn.aikuiba.**.entity #扫描实体类所在的包
+  mapper-locations: classpath:mapper/**/*Mapper.xml #扫描Mapper.xml文件
+#Mybatis分页插件
+pagehelper:
+  helper-dialect: mysql #数据库方言
+  reasonable: true
+  support-methods-arguments: true
+  page-size-zero: false
+
+

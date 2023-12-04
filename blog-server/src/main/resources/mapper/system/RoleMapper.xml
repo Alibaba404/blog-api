@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.aikuiba.system.mapper.RoleMapper">
+    <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        INSERT INTO tb_role(name, sn)
+        VALUES (#{name}, #{sn})
+    </insert>
+    <insert id="insertEmployeeRole">
+        INSERT INTO tb_employee_role(employee_id, role_id)
+        VALUES
+        <foreach collection="roles" item="role" separator=",">
+            (#{employeeId},#{role.id})
+        </foreach>
+    </insert>
+    <insert id="insertRoleMenu">
+        INSERT INTO tb_role_menu(role_id, menu_id)
+        VALUES
+        <foreach collection="menus" item="menu" separator=",">
+            (#{id},#{menu.id})
+        </foreach>
+    </insert>
+    <insert id="insertRolePermission">
+        INSERT INTO tb_role_permission(role_id, permission_id)
+        VALUES
+        <foreach collection="permissions" item="p" separator=",">
+            (#{id},#{p.id})
+        </foreach>
+    </insert>
+    <insert id="insertOneRoleMenu">
+        INSERT INTO tb_role_menu(role_id, menu_id)
+        VALUES (#{roleId}, #{parentId})
+    </insert>
+
+    <update id="update">
+        UPDATE tb_role
+        <set>
+            name =#{name},
+            sn =#{sn}
+        </set>
+        WHERE id =#{id}
+    </update>
+    <delete id="delete">
+        DELETE
+        FROM tb_role tr
+        WHERE tr.id = #{uid}
+    </delete>
+    <delete id="deleteBatch">
+        DELETE FROM tb_role tr WHERE tr.id IN
+        <foreach collection="array" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="deleteRolePermission">
+        DELETE
+        FROM tb_role_permission
+        WHERE role_id = #{roleId}
+    </delete>
+    <delete id="deleteRoleMenu">
+        DELETE
+        FROM tb_role_menu
+        WHERE role_id = #{roleId}
+    </delete>
+
+    <select id="findAll" resultType="cn.aikuiba.system.entity.Role">
+        SELECT *
+        FROM tb_role tr
+    </select>
+
+    <select id="findOne" resultType="cn.aikuiba.system.entity.Role">
+        SELECT *
+        FROM tb_role tr
+        WHERE tr.id = #{id}
+    </select>
+
+
+    <select id="page" resultType="cn.aikuiba.system.entity.Role">
+        SELECT * FROM tb_role tr
+        <where>
+            <if test="keywords !=null and !''.equals(keywords.trim())">
+                AND tr.name LIKE CONCAT('%',#{keywords},'%')
+            </if>
+        </where>
+    </select>
+    <select id="findRoleByRoleName" resultType="cn.aikuiba.system.entity.Role">
+        SELECT *
+        FROM tb_role
+        WHERE name = #{roleName}
+    </select>
+    <select id="findMenusByRoleId" resultType="cn.aikuiba.system.entity.Menu">
+        SELECT tm.*
+        FROM tb_role_menu trm
+                 JOIN tb_menu tm ON
+            trm.menu_id = tm.id
+        WHERE trm.role_id = #{roleId}
+    </select>
+    <select id="findPermissionsByRoleId" resultType="cn.aikuiba.system.entity.Permission">
+        SELECT tp.*
+        FROM tb_role_permission trp
+                 JOIN tb_permission tp ON trp.permission_id = tp.id
+        WHERE trp.role_id = #{roleId}
+    </select>
+    <select id="findRoleMenuByMenuParentIdAndRoleId" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM tb_role_menu
+        WHERE role_id = #{roleId}
+          AND menu_id = #{parentId}
+    </select>
+</mapper>

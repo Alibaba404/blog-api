@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.aikuiba.blog.mapper.ParamMapper">
+    <insert id="insert">
+        INSERT INTO tb_param(param_key, param_value, type, create_time, update_time, operator_name, param_desc)
+        VALUES (#{paramKey},
+                #{paramValue},
+                #{type},
+                #{createTime},
+                #{updateTime},
+                #{operatorName},
+                #{paramDesc})
+    </insert>
+    <update id="update">
+        UPDATE tb_param
+        SET param_key=#{paramKey},
+            param_value=#{paramValue},
+            type=#{type},
+            create_time=#{createTime},
+            update_time=#{updateTime},
+            operator_name= #{operatorName},
+            param_desc=#{paramDesc}
+        WHERE id = #{id}
+    </update>
+    <delete id="delete">
+        DELETE
+        FROM tb_param
+        WHERE id = #{id}
+    </delete>
+    <delete id="deleteBatch">
+        DELETE
+        FROM tb_param
+        WHERE id IN
+        <foreach collection="array" separator="," item="id" open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="findAll" resultType="cn.aikuiba.blog.entity.Param">
+        SELECT *
+        FROM tb_param
+    </select>
+    <select id="findOne" resultType="cn.aikuiba.blog.entity.Param">
+        SELECT *
+        FROM tb_param
+        WHERE id = #{id}
+    </select>
+    <select id="page" resultType="cn.aikuiba.blog.entity.Param">
+        SELECT * FROM tb_param
+        <where>
+            <if test="keywords !=null and !''.equals(keywords.trim())">
+                AND param_key =#{keywords}
+            </if>
+        </where>
+    </select>
+</mapper>

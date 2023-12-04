@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.aikuiba.system.mapper.CourseMapper">
+    <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        INSERT INTO tb_course(lecture_time, week, content, teacher, remark)
+        VALUES (#{lectureTime},
+                #{week},
+                #{content},
+                #{teacher},
+                #{remark})
+    </insert>
+    <insert id="insertBatch">
+        INSERT INTO tb_course(lecture_time, week, content, teacher, remark)
+        VALUES
+        <foreach collection="list" item="c" separator=",">
+            (#{c.lectureTime},
+            #{c.week},
+            #{c.content},
+            #{c.teacher},
+            #{c.remark})
+        </foreach>
+    </insert>
+    <update id="update">
+        UPDATE tb_course
+        <set>
+            lecture_time=#{lectureTime},
+            `week`=#{week},
+            content=#{content},
+            teacher=#{teacher},
+            remark=#{remark}
+        </set>
+        WHERE id =#{id}
+    </update>
+    <delete id="delete">
+        DELETE
+        FROM tb_course tc
+        WHERE tc.id = #{id}
+    </delete>
+    <delete id="deleteBatch">
+        DELETE FROM tb_course tc WHERE tc.id IN
+        <foreach collection="array" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>w
+    </delete>
+
+    <select id="findAll" resultType="cn.aikuiba.system.entity.Course">
+        SELECT *
+        FROM tb_course tc
+    </select>
+
+    <select id="findOne" resultType="cn.aikuiba.system.entity.Course">
+        SELECT *
+        FROM tb_course tc
+        WHERE tc.id = #{id}
+    </select>
+
+    <select id="page" resultType="cn.aikuiba.system.entity.Course">
+        SELECT *
+        FROM tb_course tc
+        <where>
+            <if test="keywords !=null and !''.equals(keywords.trim())">
+                AND tc.teacher LIKE CONCAT('%',#{keywords},'%')
+            </if>
+        </where>
+    </select>
+    <select id="findByIds" resultType="cn.aikuiba.system.entity.Course">
+        SELECT * FROM tb_course
+        <where>
+            <if test="ids !=null and ids.length >0">
+                AND id IN
+                <foreach collection="array" open="(" close=")" separator="," item="id">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+</mapper>
