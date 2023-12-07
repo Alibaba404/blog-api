@@ -1,6 +1,7 @@
 package cn.aikuiba.system.controller;
 
 import cn.aikuiba.resp.R;
+import cn.aikuiba.system.aop.LogsAnno;
 import cn.aikuiba.system.auth.PermissionAnno;
 import cn.aikuiba.system.entity.Menu;
 import cn.aikuiba.system.query.MenuQuery;
@@ -64,6 +65,7 @@ public class MenuController {
      *
      * @param menu 菜单信息
      */
+    @LogsAnno
     @PermissionAnno(name = "保存菜单", sn = "menu:save", descs = "保存或修改菜单信息")
     @PutMapping
     public R<String> saveOrUpdate(@RequestBody Menu menu) {
@@ -87,6 +89,7 @@ public class MenuController {
      *
      * @param id 菜单ID
      */
+    @LogsAnno
     @PermissionAnno(name = "删除单个菜单", sn = "menu:delOne", descs = "根据菜单ID删除菜单信息")
     @DeleteMapping("/{id}")
     public R<Void> delOne(@PathVariable("id") Long id) {
@@ -100,6 +103,7 @@ public class MenuController {
      * @param ids 菜单ID数组
      * @return
      */
+    @LogsAnno
     @PermissionAnno(name = "删除多个菜单", sn = "menu:delBatch", descs = "批量删除")
     @PatchMapping
     public R<Void> delBatch(@RequestBody Long[] ids) {
