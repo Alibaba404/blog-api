@@ -97,8 +97,11 @@ public class ArticleCommentServiceImpl implements IArticleCommentService {
         ArticleComment articleComment = new ArticleComment();
         articleComment.setArticleId(articleCommentQuery.getArticleId());
         ExampleMatcher matcher = ExampleMatcher.matching()
+                // 忽略字段
                 .withIgnorePaths("createTime", "nickname", "content", "userId", "likenum", "replynum", "parentId", "state")
+                // 忽略大小写
                 .withIgnoreCase(true)
+                // 查询字段
                 .withMatcher("articleId", ExampleMatcher.GenericPropertyMatchers.contains());
         Example<ArticleComment> example = Example.of(articleComment, matcher);
         //分页条件
